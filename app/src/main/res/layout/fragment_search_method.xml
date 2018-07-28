@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".OwnerPage.SearchMethodFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:padding="5dp">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="원하는 매칭 방법을 선택해주세요."
+            android:gravity="center"
+            android:textSize="18sp"
+            android:layout_marginBottom="40dp"/>
+
+        <RadioGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="20dp"
+            android:id="@+id/radioGroup">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="5dp">
+
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/direct_matching"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="방법1."
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:background="@drawable/method_left_textbox"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="2dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="직접 매칭"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:background="@drawable/method_right_textbox"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"/>
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lines="3"
+                android:textSize="17sp"
+                android:padding="5dp"
+                android:layout_marginBottom="70dp"
+                android:textColor="#000000"
+                android:background="@drawable/method_outline_box"
+                android:text="음식종류 선택 ▶ 푸드트럭 선택\n▶ 상세정보 확인 ▶ 최종 선택\n▶ 운영자에게 직접 연락"/>
+
+
+
+
+
+
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginBottom="5dp">
+                <RadioButton
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/inquire"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="방법1."
+                    android:textColor="#FFFFFF"
+                    android:textSize="18sp"
+                    android:background="@drawable/method_left_textbox"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="2dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="매칭 문의하기"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:background="@drawable/method_right_textbox"
+                    android:paddingLeft="2dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="2dp"
+                    android:paddingBottom="2dp"/>
+            </LinearLayout>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:lines="4"
+                android:textSize="17sp"
+                android:padding="5dp"
+                android:textColor="#000000"
+                android:background="@drawable/method_outline_box"
+                android:text="축제정보 입력\n▶ 원하는 푸드트럭 조건 선택\n▶ 테이스트릿에 문의하기\n▶ 매칭 완료"/>
+        </RadioGroup>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+            <TextView
+                android:id="@+id/next"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:paddingRight="15dp"
+                android:paddingLeft="15dp"
+                android:paddingTop="5dp"
+                android:paddingBottom="5dp"
+                android:textSize="18sp"
+                android:text="다음"
+                android:background="@drawable/login_ft_btn"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"/>
+        </RelativeLayout>
+
+
+
+
+    </LinearLayout>
+
+</FrameLayout>
