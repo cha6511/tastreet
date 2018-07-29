@@ -28,7 +28,7 @@ public class OwnerMainActivity extends AppCompatActivity {
 
     SearchMethodFragment searchMethodFragment = SearchMethodFragment.getInstance();
     DirectMatchingFragment directMatchingFragment = DirectMatchingFragment.getInstance();
-    InquireMatchingFragment inquireMatchingFragment = InquireMatchingFragment.getInstance();
+
 
 
     @Override
@@ -62,6 +62,7 @@ public class OwnerMainActivity extends AppCompatActivity {
         } else if(Events.INQUIRY_MATCHING_FRAGMENT.equals(msg.getMsg())){
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction transaction = fragmentManager.beginTransaction();
+            InquireMatchingFragment inquireMatchingFragment = new InquireMatchingFragment();
             transaction.replace(R.id.main_panel, inquireMatchingFragment).commitAllowingStateLoss();
         } else if(Events.FINISH_MATCHING.equals(msg.getMsg())){
             finish();

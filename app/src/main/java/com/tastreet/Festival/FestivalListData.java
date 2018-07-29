@@ -1,6 +1,8 @@
 package com.tastreet.Festival;
 
-public class FestivalListData {
+import java.io.Serializable;
+
+public class FestivalListData implements Serializable{
     private String festival_name;
     private String recruit_amt;
     private String recruit_status;

@@ -35,8 +35,8 @@ public class FestivalListAdapter extends RecyclerView.Adapter<FestivalListAdapte
         holder.status.setText(data.getRecruit_status());
         holder.recruit_amt.setText(data.getRecruit_amt());
         holder.festival_name.setText(data.getFestival_name());
-        holder.festival_date.setText(data.getFestival_date());
-        holder.festival_loc.setText(data.getFestival_loc());
+        holder.festival_date.setText("일시 : " + data.getFestival_date());
+        holder.festival_loc.setText("위치 : " + data.getFestival_loc());
 
         holder.body.setOnClickListener(onClickListener);
         holder.body.setTag(data);

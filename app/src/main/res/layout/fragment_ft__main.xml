@@ -3,12 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FoodTruckPage.FT_FestivalFragment">
+    tools:context=".FoodTruckPage.FT_MainFragment"
+    android:padding="5dp">
 
     <android.support.v7.widget.RecyclerView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/festival_list"
-        android:padding="5dp"/>
+        android:id="@+id/mfs_list"/>
 
 </FrameLayout>

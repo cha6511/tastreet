@@ -13,14 +13,28 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
+import com.tastreet.EventBus.Events;
+import com.tastreet.EventBus.GlobalBus;
+import com.tastreet.Festival.FestivalListData;
+import com.tastreet.MonthlyFestival.MonthlyFestivalListData;
 import com.tastreet.R;
+
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
+
+import static com.tastreet.EventBus.Events.CURRENT_PAGE;
+import static com.tastreet.EventBus.Events.FT_FESTIVAL_DETAIL_FRAGMENT;
+import static com.tastreet.EventBus.Events.FT_FESTIVAL_FRAGMENT;
+import static com.tastreet.EventBus.Events.FT_MAIN_FRAGMENT;
+import static com.tastreet.EventBus.Events.FT_MONTHLY_FESTIVAL_DETAIL_FRAGMENT;
 
 public class FT_MainActivity extends AppCompatActivity {
 
     Toolbar toolbar;
     ActionBar actionBar;
 
-    public static FestivalFragment festivalFragment = FestivalFragment.getInstance();
+    public static FT_FestivalFragment FTFestivalFragment = FT_FestivalFragment.getInstance();
+    public static FT_MainFragment ft_mainFragment = FT_MainFragment.getInstance();
 
     DrawerLayout drawerLayout;
     NavigationView navigationView;
@@ -68,14 +82,86 @@ public class FT_MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
+        setMainFragment();
     }
 
 
     private void setFestivalFragment(){
-        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, festivalFragment);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, FTFestivalFragment);
         fragmentTransaction.commit();
     }
 
+    private void setMainFragment(){
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, ft_mainFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void setMonthlyFestivalDetailFragment(MonthlyFestivalListData data){
+
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("monthlyDetailData", data);
+
+        FT_MonthlyFestivalDetailFragment ft_monthlyFestivalDetailFragment = new FT_MonthlyFestivalDetailFragment();
+        ft_monthlyFestivalDetailFragment.setArguments(bundle);
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, ft_monthlyFestivalDetailFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void setFestivalDetailFragment(FestivalListData data){
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("festivalDetailData", data);
+
+        FT_FestivalDetailFragment ft_festivalDetailFragment = new FT_FestivalDetailFragment();
+        ft_festivalDetailFragment.setArguments(bundle);
+
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, ft_festivalDetailFragment);
+        fragmentTransaction.commit();
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getMonthlyFestivalData(Events.SendMonthlyFestivalData sendMonthlyFestivalData){
+        setMonthlyFestivalDetailFragment(sendMonthlyFestivalData.getData());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getFestivalData(Events.SendFestivalData sendFestivalData){
+        setFestivalDetailFragment(sendFestivalData.getData());
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getMessage(Events.Msg msg){
+        if(Events.BACK_BUTTON_PRESS.equals(msg.getMsg())){
+            onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        GlobalBus.getBus().getDefault().register(this);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        GlobalBus.getBus().getDefault().unregister(this);
+    }
+
+    @Override
+    public void onBackPressed() {
+//        super.onBackPressed();
+        if(CURRENT_PAGE.equals(FT_MAIN_FRAGMENT)){
+            finish();
+        } else if(CURRENT_PAGE.equals(FT_MONTHLY_FESTIVAL_DETAIL_FRAGMENT)){
+            setMainFragment();
+        } else if(CURRENT_PAGE.equals(FT_FESTIVAL_DETAIL_FRAGMENT)){
+            setFestivalFragment();
+        } else if(CURRENT_PAGE.equals(FT_FESTIVAL_FRAGMENT)){
+            setMainFragment();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
