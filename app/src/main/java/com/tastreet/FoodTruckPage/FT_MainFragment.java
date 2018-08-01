@@ -16,8 +16,8 @@ import android.view.ViewGroup;
 import com.tastreet.AsyncDone;
 import com.tastreet.EventBus.Events;
 import com.tastreet.EventBus.GlobalBus;
-import com.tastreet.MonthlyFestival.MonthlyFestivalListAdapter;
-import com.tastreet.MonthlyFestival.MonthlyFestivalListData;
+import com.tastreet.FoodTruckPage.MonthlyFestival.MonthlyFestivalListAdapter;
+import com.tastreet.FoodTruckPage.MonthlyFestival.MonthlyFestivalListData;
 import com.tastreet.R;
 
 import org.json.JSONArray;

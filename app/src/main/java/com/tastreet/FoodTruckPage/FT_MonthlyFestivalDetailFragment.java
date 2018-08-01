@@ -13,7 +13,7 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.tastreet.EventBus.Events;
 import com.tastreet.EventBus.GlobalBus;
-import com.tastreet.MonthlyFestival.MonthlyFestivalListData;
+import com.tastreet.FoodTruckPage.MonthlyFestival.MonthlyFestivalListData;
 import com.tastreet.R;
 
 import static com.tastreet.EventBus.Events.CURRENT_PAGE;

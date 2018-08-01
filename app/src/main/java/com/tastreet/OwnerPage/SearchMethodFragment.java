@@ -20,7 +20,7 @@ import com.tastreet.R;
  * A simple {@link Fragment} subclass.
  */
 public class SearchMethodFragment extends Fragment {
-
+    //축제 주최자 - 매칭방법 선택 화면
     public static SearchMethodFragment searchMethodFragment;
 
     public static SearchMethodFragment getInstance() {

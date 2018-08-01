@@ -1,7 +1,7 @@
 package com.tastreet.EventBus;
 
-import com.tastreet.Festival.FestivalListData;
-import com.tastreet.MonthlyFestival.MonthlyFestivalListData;
+import com.tastreet.FoodTruckPage.Festival.FestivalListData;
+import com.tastreet.FoodTruckPage.MonthlyFestival.MonthlyFestivalListData;
 
 public class Events {
 

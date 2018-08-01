@@ -20,6 +20,7 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -31,6 +32,9 @@ import com.bumptech.glide.Glide;
 import com.tastreet.AsyncDone;
 import com.tastreet.EventBus.Events;
 import com.tastreet.R;
+
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -73,14 +77,6 @@ public class FT_RegisterActivity extends AppCompatActivity {
 
     File main_img;
 
-    Bitmap main;
-    Bitmap menu;
-
-    String mainImageTag = "ft_main_img";
-    String menuImageTag = "ft_menu_img";
-
-    String mainImageData = "main_image_data";
-    String menuImageData = "menu_image_data";
     ByteArrayOutputStream byteArrayOutputStream;
     byte[] byteArray;
     String ConvertImage;
@@ -94,49 +90,55 @@ public class FT_RegisterActivity extends AppCompatActivity {
     boolean check = true;
 
 
+    String mainImagePath = "";
+    String menuImagePath = "";
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Uri selectedMainImgUri = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(selectedMainImgUri, filePathColumn, null, null, null);
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+
         if (requestCode == 1 && resultCode == RESULT_OK) {
-            Uri selectedMainImgUri = data.getData();
-            main_img = new File(getPath(selectedMainImgUri));
-            try {
-                main = MediaStore.Images.Media.getBitmap(this.getContentResolver(), selectedMainImgUri);
-                UploadImageToServer(main);
-            } catch (Exception e) {
-                e.printStackTrace();
+            if (cursor.moveToFirst()) {
+                mainImagePath = getPath(this, selectedMainImgUri);
+                Log.d("mainImagePath", mainImagePath);
+                Glide.with(FT_RegisterActivity.this)
+                        .load(new File(mainImagePath))
+                        .into(profile_img);
+                no_profile.setVisibility(View.GONE);
+                cursor.close();
             }
-            getPath(selectedMainImgUri);
-            Glide.with(FT_RegisterActivity.this).load(main).into(profile_img);
-            no_profile.setVisibility(View.GONE);
+        } else if (requestCode == 2 && resultCode == RESULT_OK) {
+            if (cursor.moveToFirst()) {
+                menuImagePath = getPath(this, selectedMainImgUri);
+                Log.d("menuImagePath", menuImagePath);
+//                Glide.with(FT_RegisterActivity.this)
+//                        .load(new File(menuImagePath))
+//                        .into(profile_img);
+                cursor.close();
+            }
+        } else {
+            Toast.makeText(FT_RegisterActivity.this, "파일 로드 실패", Toast.LENGTH_SHORT).show();
         }
     }
 
-    public String getPath(Uri uri) {
-        if (uri.getPath().startsWith("/storage")) {
-//            main = BitmapFactory.decodeFile(uri.getPath());
-            return uri.getPath();
+    public String getPath(Context context, Uri uri) {
+        String filePath = "";
+        String fileId = DocumentsContract.getDocumentId(uri);
+        // Split at colon, use second item in the array
+        String id = fileId.split(":")[1];
+        String[] column = {MediaStore.Images.Media.DATA};
+        String selector = MediaStore.Images.Media._ID + "=?";
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, selector, new String[]{id}, null);
+        int columnIndex = cursor.getColumnIndex(column[0]);
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
         }
-
-        String id = DocumentsContract.getDocumentId(uri).split(":")[1];
-        String[] columns = {MediaStore.Images.Media.DATA};
-        String selection = MediaStore.Images.ImageColumns._ID + "=" + id;
-        Cursor cursor = getContentResolver().query(
-                MediaStore.Images.Media.getContentUri("external"),
-                columns,
-                selection,
-                null,
-                null);
-        try {
-            int columnIndex = cursor.getColumnIndex(columns[0]);
-            if (cursor.moveToFirst()) {
-//                main = BitmapFactory.decodeFile(cursor.getString(columnIndex));
-                return cursor.getString(columnIndex);
-            }
-        } finally {
-            cursor.close();
-        }
-        return null;
-
+        cursor.close();
+        return filePath;
     }
 
     @Override
@@ -175,7 +177,19 @@ public class FT_RegisterActivity extends AppCompatActivity {
         add_picture.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                UploadImageToServer(main);
+                if (Build.VERSION.SDK_INT >= 23) {
+                    if (checkPermission()) {
+                        final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                        galleryIntent.setType("*/*");
+                        startActivityForResult(galleryIntent, 2);
+                    } else {
+                        requestPermission();
+                    }
+                } else {
+                    final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                    galleryIntent.setType("*/*");
+                    startActivityForResult(galleryIntent, 2);
+                }
             }
         });
 
@@ -198,18 +212,19 @@ public class FT_RegisterActivity extends AppCompatActivity {
                         }
                     }
                 });
-                registerFT.execute(registerFT.setPostBody(
-                        main_img,
+                registerFT.execute(
+                        mainImagePath,
                         ft_name.getText().toString(),
-                        "",
+                        "한국",
                         contact.getText().toString(),
                         _id.getText().toString(),
                         pw.getText().toString(),
                         description.getText().toString(),
-                        main_img,
+                        menuImagePath,
                         facebook.getText().toString(),
-                        instagram.getText().toString()
-                ));
+                        instagram.getText().toString(),
+                        "음료"
+                );
             }
         });
     }
@@ -244,7 +259,7 @@ public class FT_RegisterActivity extends AppCompatActivity {
         }
     }
 
-    public class RegisterFT extends AsyncTask<Request, String, String> {
+    public class RegisterFT extends AsyncTask<String, String, String> {
 
         Context context;
         AsyncDone asyncDone;
@@ -268,46 +283,106 @@ public class FT_RegisterActivity extends AppCompatActivity {
         }
 
         @Override
-        protected String doInBackground(Request... reqs) {
+        protected String doInBackground(String... strings) {
             OkHttpClient client = new OkHttpClient();
 
             try {
-                Response response = client.newCall(reqs[0]).execute();
+                final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
+                File mainFile = new File(strings[0]);
+                String main_filename = strings[0].substring(strings[0].lastIndexOf("/") + 1);
+
+                File menuFile = new File(strings[7]);
+                String menu_filename = strings[7].substring(strings[7].lastIndexOf("/") + 1);
+
+                Log.d("register ft_main_img", main_filename);
+                Log.d("register ft_name", strings[1]);
+                Log.d("register origin", strings[2]);
+                Log.d("register ft_num", strings[3]);
+                Log.d("register ft_id", strings[4]);
+                Log.d("register ft_pw", strings[5]);
+                Log.d("register ft_intro", strings[6]);
+                Log.d("register ft_menu_img", menu_filename);
+                Log.d("register ft_sns_f", strings[8]);
+                Log.d("register ft_sns_i", strings[9]);
+                Log.d("register category", strings[10]);
+
+                RequestBody req = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                        .addFormDataPart("ft_main_img", main_filename, RequestBody.create(MEDIA_TYPE_PNG, mainFile))
+                        .addFormDataPart("ft_name", strings[1])
+                        .addFormDataPart("origin", strings[2])
+                        .addFormDataPart("ft_num", strings[3])
+                        .addFormDataPart("ft_id", strings[4])
+                        .addFormDataPart("ft_pw", strings[5])
+                        .addFormDataPart("ft_intro", strings[6])
+                        .addFormDataPart("ft_menu_img", menu_filename, RequestBody.create(MEDIA_TYPE_PNG, menuFile))
+                        .addFormDataPart("ft_sns_f", strings[8])
+                        .addFormDataPart("ft_sns_i", strings[9])
+                        .addFormDataPart("category", strings[10])
+                        .build();
+
+                Request.Builder builder = new Request.Builder();
+                builder.post(req).url(Events.baseUrl + "register.php");
+                Request request = builder.build();
+
+                Response response = client.newCall(request).execute();
                 String myResponse = response.body().string();
+                Log.d("register response body", myResponse);
                 return myResponse;
+
             } catch (Exception e) {
                 e.printStackTrace();
+                return null;
             }
 
-            return null;
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            Log.d("register response", s);
             if (TextUtils.isEmpty(s)) {
                 asyncDone.getResult("FAILED");
             } else {
-                asyncDone.getResult("SUCCESS");
+
+                try {
+                    JSONArray resultArray = new JSONArray(s);
+                    JSONObject resultObj = resultArray.getJSONObject(0);
+                    String result = resultObj.getString("result");
+                    if ("SUCCESS".equals(result)) {
+                        asyncDone.getResult("SUCCESS");
+                    } else {
+                        asyncDone.getResult("FAILED");
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    asyncDone.getResult("FAILED");
+                }
+
+
             }
             if (progressDialog.isShowing()) {
                 progressDialog.dismiss();
             }
         }
 
-        public Request setPostBody(File ft_main_img, String ft_name, String origin, String ft_num, String ft_id, String ft_pw, String ft_intro, File ft_menu_img, String ft_sns_f, String ft_sns_i) {
+        public Request setPostBody(String ft_main_img, String ft_name, String origin, String ft_num, String ft_id, String ft_pw, String ft_intro, String ft_menu_img, String ft_sns_f, String ft_sns_i) {
             try {
-                final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/png");
+                final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
+                File mainFile = new File(ft_main_img);
+                String main_filename = ft_main_img.substring(ft_main_img.lastIndexOf("/") + 1);
+
+                File menuFile = new File(ft_menu_img);
+                String menu_filename = ft_menu_img.substring(ft_menu_img.lastIndexOf("/") + 1);
 
                 RequestBody req = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                        .addFormDataPart("ft_main_img", "profile.png", RequestBody.create(MEDIA_TYPE_PNG, ft_main_img))
+                        .addFormDataPart("ft_main_img", main_filename, RequestBody.create(MEDIA_TYPE_PNG, mainFile))
                         .addFormDataPart("ft_name", ft_name)
                         .addFormDataPart("origin", origin)
                         .addFormDataPart("ft_num", ft_num)
                         .addFormDataPart("ft_id", ft_id)
                         .addFormDataPart("ft_pw", ft_pw)
                         .addFormDataPart("ft_intro", ft_intro)
-                        .addFormDataPart("ft_menu_img", "menu_img.png", RequestBody.create(MEDIA_TYPE_PNG, ft_menu_img))
+                        .addFormDataPart("ft_menu_img", menu_filename, RequestBody.create(MEDIA_TYPE_PNG, menuFile))
                         .addFormDataPart("ft_sns_f", ft_sns_f)
                         .addFormDataPart("ft_sns_i", ft_sns_i)
                         .build();
@@ -321,6 +396,8 @@ public class FT_RegisterActivity extends AppCompatActivity {
                 e.printStackTrace();
                 return null;
             }
+
+
         }
     }
 

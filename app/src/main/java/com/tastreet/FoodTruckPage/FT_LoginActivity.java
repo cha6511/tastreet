@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
@@ -14,17 +15,25 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.RequestBuilder;
 import com.tastreet.AsyncDone;
 import com.tastreet.BaseActivity;
 import com.tastreet.Common;
+import com.tastreet.EventBus.Events;
 import com.tastreet.R;
 import com.tastreet.SharedPref;
 
+import org.json.JSONArray;
 import org.json.JSONObject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import okhttp3.MultipartBody;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 
 public class FT_LoginActivity extends BaseActivity {
 
@@ -81,9 +90,9 @@ public class FT_LoginActivity extends BaseActivity {
         }
 
         //위 로직에서 오토로그인 체크되어있으면 로그인버튼 강제 클릭
-        if (autoLogin.isChecked()) {
-            loginBtn.performClick();
-        }
+//        if (autoLogin.isChecked()) {
+//            loginBtn.performClick();
+//        }
     }
 
     @OnClick({R.id.login_btn, R.id.register, R.id.find_id})
@@ -99,21 +108,21 @@ public class FT_LoginActivity extends BaseActivity {
                         Toast.makeText(FT_LoginActivity.this, "비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show();
                         return;
                     } else { //둘다 입력한 경우 서버에 값을 보내서 결과값에 따라 처리
-                        Intent intent = new Intent(FT_LoginActivity.this, FT_MainActivity.class);
-                        startActivity(intent);
-                        finish();
                         //서버 갔다오기
-//                        LoginProcess loginProcess = new LoginProcess(FT_LoginActivity.this, new AsyncDone() {
-//                            @Override
-//                            public void getResult(String result) {
-//                                if (Common.FAILED.equals(result)) { //결과값이 FAILED 인 경우
-//                                    Toast.makeText(FT_LoginActivity.this, "로그인 실패\n아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_SHORT).show();
-//                                } else if (Common.SUCCESS.equals(result)) { //결과값이 SUCCESS 인 경우
-//                                    //페이지 이동
-//                                }
-//                            }
-//                        });
-//                        loginProcess.execute(inputId.getText().toString(), inputPw.getText().toString());
+                        LoginProcess loginProcess = new LoginProcess(FT_LoginActivity.this, new AsyncDone() {
+                            @Override
+                            public void getResult(String result) {
+                                if (Common.FAILED.equals(result)) { //결과값이 FAILED 인 경우
+                                    Toast.makeText(FT_LoginActivity.this, "로그인 실패\n아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_SHORT).show();
+                                } else if (Common.SUCCESS.equals(result)) { //결과값이 SUCCESS 인 경우
+                                    //페이지 이동
+                                    Intent intent = new Intent(FT_LoginActivity.this, FT_MainActivity.class);
+                                    startActivity(intent);
+                                    finish();
+                                }
+                            }
+                        });
+                        loginProcess.execute(inputId.getText().toString(), inputPw.getText().toString());
                     }
                 }
                 break;
@@ -151,27 +160,48 @@ public class FT_LoginActivity extends BaseActivity {
         @Override
         protected String doInBackground(String... strings) {
 
+            OkHttpClient client = new OkHttpClient();
+            RequestBody requestBody = new MultipartBody.Builder().setType(MultipartBody.FORM)
+                    .addFormDataPart("id", strings[0])
+                    .addFormDataPart("pw", strings[1])
+                    .build();
+
+            Request request = new Request.Builder().url(Events.baseUrl + "ft_login.php").post(requestBody).build();
+            Response response = null;
+            String myResponse = "";
+            try{
+                response = client.newCall(request).execute();
+                myResponse = response.body().string();
+                return myResponse;
+            } catch (Exception e){
+                e.printStackTrace();
+            }
             return null;
         }
 
         @Override
         protected void onPostExecute(String s) {
             super.onPostExecute(s);
+            Log.d("Login result", s);
             try {
-                JSONObject jsonObject = new JSONObject(s);
+                JSONArray resultArray = new JSONArray(s);
+                JSONObject jsonObject = resultArray.getJSONObject(0);
                 String result = jsonObject.getString("result");
                 if (Common.FAILED.equals(result)) {
                     asyncDone.getResult(result);
                 } else if (Common.SUCCESS.equals(result)) {
                     //정보 다 받아와서 저장
-
                     if(autoLogin.isChecked()){
-
+                        SharedPref sharedPref = new SharedPref(context);
+                        sharedPref.setLoginId(inputId.getText().toString());
+                        sharedPref.setLoginPw(inputPw.getText().toString());
+                        sharedPref.setAutoLogin(true);
                     }
                     asyncDone.getResult(result);
                 }
             } catch (Exception e) {
                 e.printStackTrace();
+                asyncDone.getResult(Common.FAILED);
             }
 
             if (progressDialog.isShowing()) {

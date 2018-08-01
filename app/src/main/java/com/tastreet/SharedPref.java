@@ -4,6 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 public class SharedPref {
+    //안드로이드 내부 저장소 SharedPreferences
+    //이 앱에서는 로그인 정보를 저장하는데 사용한다.
     Context context;
     SharedPreferences sharedPreferences;
     SharedPreferences.Editor editor;
@@ -14,10 +16,12 @@ public class SharedPref {
     private static final String SAVE_ID = "SAVE_ID";
 
 
-
+    //초기화
     public SharedPref(Context context){
         this.context = context;
+        //SharedPreferences 를 "pref" 라는 이름으로 만든다. //MODE_PRIVATE => 이 앱에서만 사용한다.
         sharedPreferences = context.getSharedPreferences("pref", Context.MODE_PRIVATE);
+        //SharedPreferences 에 내용을 저장하는 editor
         editor = sharedPreferences.edit();
     }
 

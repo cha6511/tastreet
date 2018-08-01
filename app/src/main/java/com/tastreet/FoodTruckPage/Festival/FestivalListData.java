@@ -1,4 +1,4 @@
-package com.tastreet.Festival;
+package com.tastreet.FoodTruckPage.Festival;
 
 import java.io.Serializable;
 

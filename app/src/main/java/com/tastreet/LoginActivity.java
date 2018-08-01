@@ -47,12 +47,14 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View view) {
         switch(view.getId()){
             case R.id.owner:
+                //축제 주최자 메인 페이지로 이동
                 Intent owner = new Intent(LoginActivity.this, OwnerMainActivity.class);
                 startActivity(owner);
 //                finish();
                 break;
 
             case R.id.ft:
+                //푸드트럭 메인 페이지로 이동
                 Intent intent = new Intent(LoginActivity.this, FT_LoginActivity.class);
                 startActivity(intent);
 //                finish();

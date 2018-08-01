@@ -9,14 +9,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
 import com.tastreet.EventBus.Events;
 import com.tastreet.EventBus.GlobalBus;
-import com.tastreet.Festival.FestivalListData;
-import com.tastreet.MonthlyFestival.MonthlyFestivalListData;
+import com.tastreet.FoodTruckPage.Festival.FestivalListData;
+import com.tastreet.FoodTruckPage.MonthlyFestival.MonthlyFestivalListData;
 import com.tastreet.R;
 
 import org.greenrobot.eventbus.Subscribe;
@@ -152,14 +153,18 @@ public class FT_MainActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
 //        super.onBackPressed();
-        if(CURRENT_PAGE.equals(FT_MAIN_FRAGMENT)){
-            finish();
-        } else if(CURRENT_PAGE.equals(FT_MONTHLY_FESTIVAL_DETAIL_FRAGMENT)){
-            setMainFragment();
-        } else if(CURRENT_PAGE.equals(FT_FESTIVAL_DETAIL_FRAGMENT)){
-            setFestivalFragment();
-        } else if(CURRENT_PAGE.equals(FT_FESTIVAL_FRAGMENT)){
-            setMainFragment();
+        if(drawerLayout.isDrawerOpen(GravityCompat.START)){
+            drawerLayout.closeDrawer(Gravity.START);
+        } else {
+            if (CURRENT_PAGE.equals(FT_MAIN_FRAGMENT)) {
+                finish();
+            } else if (CURRENT_PAGE.equals(FT_MONTHLY_FESTIVAL_DETAIL_FRAGMENT)) {
+                setMainFragment();
+            } else if (CURRENT_PAGE.equals(FT_FESTIVAL_DETAIL_FRAGMENT)) {
+                setFestivalFragment();
+            } else if (CURRENT_PAGE.equals(FT_FESTIVAL_FRAGMENT)) {
+                setMainFragment();
+            }
         }
     }
 

@@ -17,8 +17,8 @@ import android.widget.Toast;
 import com.tastreet.AsyncDone;
 import com.tastreet.EventBus.Events;
 import com.tastreet.EventBus.GlobalBus;
-import com.tastreet.Festival.FestivalListAdapter;
-import com.tastreet.Festival.FestivalListData;
+import com.tastreet.FoodTruckPage.Festival.FestivalListAdapter;
+import com.tastreet.FoodTruckPage.Festival.FestivalListData;
 import com.tastreet.R;
 
 import org.json.JSONArray;
