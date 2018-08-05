@@ -1,5 +1,8 @@
 package com.tastreet.FoodTruckPage;
 
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
@@ -13,21 +16,30 @@ import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
+import com.tastreet.AsyncDone;
 import com.tastreet.EventBus.Events;
 import com.tastreet.EventBus.GlobalBus;
 import com.tastreet.FoodTruckPage.Festival.FestivalListData;
 import com.tastreet.FoodTruckPage.MonthlyFestival.MonthlyFestivalListData;
+import com.tastreet.OwnerPage.FoodListData;
 import com.tastreet.R;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import okhttp3.OkHttpClient;
 
 import static com.tastreet.EventBus.Events.CURRENT_PAGE;
 import static com.tastreet.EventBus.Events.FT_FESTIVAL_DETAIL_FRAGMENT;
 import static com.tastreet.EventBus.Events.FT_FESTIVAL_FRAGMENT;
 import static com.tastreet.EventBus.Events.FT_MAIN_FRAGMENT;
 import static com.tastreet.EventBus.Events.FT_MONTHLY_FESTIVAL_DETAIL_FRAGMENT;
+import static com.tastreet.EventBus.Events.MYFT_FRAGMENT;
 
 public class FT_MainActivity extends AppCompatActivity {
 
@@ -41,6 +53,8 @@ public class FT_MainActivity extends AppCompatActivity {
     NavigationView navigationView;
 
     FrameLayout main_panel;
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -58,12 +72,20 @@ public class FT_MainActivity extends AppCompatActivity {
 
         drawerLayout = findViewById(R.id.drawer_layout);
         navigationView = findViewById(R.id.navigation_view);
+        TextView header_id = navigationView.getHeaderView(0).findViewById(R.id._id);
+        header_id.setText(FT_LoginActivity.loginData.getFt_name());
+        ImageView profile_img = navigationView.getHeaderView(0).findViewById(R.id.profile_img);
+        Glide.with(this).load(FT_LoginActivity.loginData.getFt_main_img()).apply(new RequestOptions().circleCrop().error(R.drawable.ic_launcher_foreground)).into(profile_img);
+
+
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 item.setChecked(true);
                 switch(item.getItemId()){
                     case R.id.navigation_item_my_foodtruck:
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        setMyFoodtruckFragment();
                         break;
 
                     case R.id.navigation_item_festival:
@@ -87,6 +109,14 @@ public class FT_MainActivity extends AppCompatActivity {
         setMainFragment();
     }
 
+    private void setMyFoodtruckFragment(){
+        MyFT_Fragment myFT_fragment = new MyFT_Fragment();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", FT_LoginActivity.loginData);
+        myFT_fragment.setArguments(bundle);
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, myFT_fragment);
+        fragmentTransaction.commit();
+    }
 
     private void setFestivalFragment(){
         FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, FTFestivalFragment);
@@ -164,6 +194,8 @@ public class FT_MainActivity extends AppCompatActivity {
                 setFestivalFragment();
             } else if (CURRENT_PAGE.equals(FT_FESTIVAL_FRAGMENT)) {
                 setMainFragment();
+            } else if(CURRENT_PAGE.equals(MYFT_FRAGMENT)){
+                setMainFragment();
             }
         }
     }
@@ -185,4 +217,5 @@ public class FT_MainActivity extends AppCompatActivity {
 
         return super.onOptionsItemSelected(item);
     }
+
 }

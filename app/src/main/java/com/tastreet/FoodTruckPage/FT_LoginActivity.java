@@ -20,6 +20,7 @@ import com.tastreet.AsyncDone;
 import com.tastreet.BaseActivity;
 import com.tastreet.Common;
 import com.tastreet.EventBus.Events;
+import com.tastreet.OwnerPage.FoodListData;
 import com.tastreet.R;
 import com.tastreet.SharedPref;
 
@@ -54,6 +55,7 @@ public class FT_LoginActivity extends BaseActivity {
     @BindView(R.id.find_id)
     LinearLayout findId;
 
+    public static FoodListData loginData;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -197,6 +199,19 @@ public class FT_LoginActivity extends BaseActivity {
                         sharedPref.setLoginPw(inputPw.getText().toString());
                         sharedPref.setAutoLogin(true);
                     }
+
+                    loginData = new FoodListData();
+                    loginData.setFt_main_img(jsonObject.getString("ft_main_img"));
+                    loginData.setFt_name(jsonObject.getString("ft_name"));
+                    loginData.setOrigin(jsonObject.getString("origin"));
+                    loginData.setFt_num(jsonObject.getString("ft_num"));
+                    loginData.setFt_intro(jsonObject.getString("ft_intro"));
+                    loginData.setFt_menu_img(jsonObject.getString("ft_menu_img"));
+                    loginData.setFt_sns_f(jsonObject.getString("ft_sns_f"));
+                    loginData.setFt_sns_i(jsonObject.getString("ft_sns_i"));
+                    loginData.setCategory(jsonObject.getString("category"));
+
+
                     asyncDone.getResult(result);
                 }
             } catch (Exception e) {

@@ -69,6 +69,17 @@ public class OwnerMainActivity extends AppCompatActivity {
         }
     }
 
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getMessage(Events.SendFoodtruckInfoData msg){
+        FragmentManager fragmentManager = getSupportFragmentManager();
+        FragmentTransaction transaction = fragmentManager.beginTransaction();
+        Bundle bundle = new Bundle();
+        bundle.putSerializable("data", msg.getData());
+        FoodtruckInfoFragment foodtruckInfoFragment = new FoodtruckInfoFragment();
+        foodtruckInfoFragment.setArguments(bundle);
+        transaction.replace(R.id.main_panel, foodtruckInfoFragment).commitAllowingStateLoss();
+    }
+
     @Override
     protected void onResume() {
         super.onResume();
@@ -89,6 +100,9 @@ public class OwnerMainActivity extends AppCompatActivity {
         } else if(Events.CURRENT_PAGE.equals(Events.DIRECT_MATCHING_FRAGMENT) ||
                 Events.CURRENT_PAGE.equals(Events.INQUIRY_MATCHING_FRAGMENT)){
             Events.Msg msg = new Events.Msg(Events.SEARCH_METHOD_FRAGMENT);
+            GlobalBus.getBus().post(msg);
+        } else if(Events.CURRENT_PAGE.equals(Events.FOODTRUCK_INFO_FRAGMENT)){
+            Events.Msg msg = new Events.Msg(Events.DIRECT_MATCHING_FRAGMENT);
             GlobalBus.getBus().post(msg);
         }
     }

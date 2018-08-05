@@ -7,9 +7,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 import com.tastreet.R;
 
 import java.util.ArrayList;
@@ -35,9 +37,10 @@ public class FoodListAdapter extends RecyclerView.Adapter<FoodListAdapter.Holder
     @Override
     public void onBindViewHolder(@NonNull Holder holder, int position) {
         FoodListData data = datas.get(position);
-        Glide.with(context).load(data.getImg_url()).into(holder.img);
-        holder.description.setText(data.getDescription());
-        holder.img.setOnClickListener(onClickListener);
+        Glide.with(context).load(data.getFt_main_img()).apply(new RequestOptions().error(context.getResources().getDrawable(R.drawable.ic_launcher_foreground))).into(holder.img);
+        holder.description.setText(data.getFt_intro());
+        holder.body.setOnClickListener(onClickListener);
+        holder.body.setTag(data);
     }
 
     @Override
@@ -48,10 +51,12 @@ public class FoodListAdapter extends RecyclerView.Adapter<FoodListAdapter.Holder
     public class Holder extends RecyclerView.ViewHolder {
         ImageView img;
         TextView description;
+        LinearLayout body;
         public Holder(View itemView) {
             super(itemView);
             img = itemView.findViewById(R.id.img);
             description = itemView.findViewById(R.id.description);
+            body = itemView.findViewById(R.id.body);
         }
     }
 }

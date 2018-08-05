@@ -22,9 +22,12 @@ import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -47,7 +50,9 @@ import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import okhttp3.MediaType;
@@ -68,6 +73,13 @@ public class FT_RegisterActivity extends AppCompatActivity {
     EditText description;
 
     Button add_picture;
+    Spinner categorySpinner;
+    CategorySpinnerAdapter adapter;
+    ImageView menu_img;
+    String category = "";
+    LinearLayout menu_img_view;
+
+    EditText origin;
 
     EditText contact;
     EditText facebook;
@@ -75,23 +87,10 @@ public class FT_RegisterActivity extends AppCompatActivity {
 
     Button register;
 
-    File main_img;
-
-    ByteArrayOutputStream byteArrayOutputStream;
-    byte[] byteArray;
-    String ConvertImage;
-    HttpURLConnection httpURLConnection;
-    URL url;
-    OutputStream outputStream;
-    BufferedWriter bufferedWriter;
-    int RC;
-    BufferedReader bufferedReader;
-    StringBuilder stringBuilder;
-    boolean check = true;
-
-
     String mainImagePath = "";
     String menuImagePath = "";
+
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -114,9 +113,11 @@ public class FT_RegisterActivity extends AppCompatActivity {
             if (cursor.moveToFirst()) {
                 menuImagePath = getPath(this, selectedMainImgUri);
                 Log.d("menuImagePath", menuImagePath);
-//                Glide.with(FT_RegisterActivity.this)
-//                        .load(new File(menuImagePath))
-//                        .into(profile_img);
+                Glide.with(FT_RegisterActivity.this)
+                        .load(new File(menuImagePath))
+                        .into(menu_img);
+                menu_img_view.setVisibility(View.VISIBLE);
+                add_picture.setText("사진 변경");
                 cursor.close();
             }
         } else {
@@ -173,6 +174,27 @@ public class FT_RegisterActivity extends AppCompatActivity {
         ft_name = findViewById(R.id.ft_name);
         description = findViewById(R.id.description);
 
+        menu_img = findViewById(R.id.menu_img);
+        categorySpinner = findViewById(R.id.category);
+        List<String> data = new ArrayList<>();
+        data.add("식사류"); data.add("간식류"); data.add("디저트");  data.add("음료");
+        adapter = new CategorySpinnerAdapter(this, data);
+        categorySpinner.setAdapter(adapter);
+        category = "식사류";
+        categorySpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                category = String.valueOf(adapterView.getItemAtPosition(i));
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        menu_img_view = findViewById(R.id.menu_img_view);
+        origin = findViewById(R.id.origin);
+
         add_picture = findViewById(R.id.add_picture);
         add_picture.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -212,19 +234,56 @@ public class FT_RegisterActivity extends AppCompatActivity {
                         }
                     }
                 });
-                registerFT.execute(
-                        mainImagePath,
-                        ft_name.getText().toString(),
-                        "한국",
-                        contact.getText().toString(),
-                        _id.getText().toString(),
-                        pw.getText().toString(),
-                        description.getText().toString(),
-                        menuImagePath,
-                        facebook.getText().toString(),
-                        instagram.getText().toString(),
-                        "음료"
-                );
+
+                if(TextUtils.isEmpty(mainImagePath)){
+                    Toast.makeText(FT_RegisterActivity.this, "메인 사진을 선택해주세요.", Toast.LENGTH_SHORT).show();
+                } else {
+                    if (TextUtils.isEmpty(_id.getText().toString())) {
+                        Toast.makeText(FT_RegisterActivity.this, "아이디를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (TextUtils.isEmpty(pw.getText().toString())) {
+                            Toast.makeText(FT_RegisterActivity.this, "비밀번호를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (TextUtils.isEmpty(ft_name.getText().toString())) {
+                                Toast.makeText(FT_RegisterActivity.this, "푸드트럭명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                if (TextUtils.isEmpty(description.getText().toString())) {
+                                    Toast.makeText(FT_RegisterActivity.this, "한 줄 소개를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    if (TextUtils.isEmpty(menuImagePath)) {
+                                        Toast.makeText(FT_RegisterActivity.this, "메뉴 사진을 선택해주세요.", Toast.LENGTH_SHORT).show();
+                                    } else{
+                                        if(TextUtils.isEmpty(category)){
+                                            Toast.makeText(FT_RegisterActivity.this, "카테고리를 선택해주세요.", Toast.LENGTH_SHORT).show();
+                                        } else{
+                                            if(TextUtils.isEmpty(origin.getText().toString())){
+                                                Toast.makeText(FT_RegisterActivity.this, "원산지를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                            } else{
+                                                if(TextUtils.isEmpty(contact.getText().toString())){
+                                                    Toast.makeText(FT_RegisterActivity.this, "연락처를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                                } else{
+                                                    registerFT.execute(
+                                                            mainImagePath,
+                                                            ft_name.getText().toString(),
+                                                            origin.getText().toString(),
+                                                            contact.getText().toString(),
+                                                            _id.getText().toString(),
+                                                            pw.getText().toString(),
+                                                            description.getText().toString(),
+                                                            menuImagePath,
+                                                            facebook.getText().toString(),
+                                                            instagram.getText().toString(),
+                                                            category
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
         });
     }
@@ -345,9 +404,8 @@ public class FT_RegisterActivity extends AppCompatActivity {
             } else {
 
                 try {
-                    JSONArray resultArray = new JSONArray(s);
-                    JSONObject resultObj = resultArray.getJSONObject(0);
-                    String result = resultObj.getString("result");
+                    JSONObject res = new JSONObject(s);
+                    String result = res.getString("result");
                     if ("SUCCESS".equals(result)) {
                         asyncDone.getResult("SUCCESS");
                     } else {
@@ -365,7 +423,7 @@ public class FT_RegisterActivity extends AppCompatActivity {
             }
         }
 
-        public Request setPostBody(String ft_main_img, String ft_name, String origin, String ft_num, String ft_id, String ft_pw, String ft_intro, String ft_menu_img, String ft_sns_f, String ft_sns_i) {
+        public Request setPostBody(String ft_main_img, String ft_name, String origin, String ft_num, String ft_id, String ft_pw, String ft_intro, String ft_menu_img, String ft_sns_f, String ft_sns_i, String category) {
             try {
                 final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
                 File mainFile = new File(ft_main_img);
@@ -385,6 +443,7 @@ public class FT_RegisterActivity extends AppCompatActivity {
                         .addFormDataPart("ft_menu_img", menu_filename, RequestBody.create(MEDIA_TYPE_PNG, menuFile))
                         .addFormDataPart("ft_sns_f", ft_sns_f)
                         .addFormDataPart("ft_sns_i", ft_sns_i)
+                        .addFormDataPart("category", category)
                         .build();
 
                 Request request = new Request.Builder()
@@ -402,75 +461,4 @@ public class FT_RegisterActivity extends AppCompatActivity {
     }
 
 
-    public void UploadImageToServer(Bitmap bitmap) {
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, byteArrayOutputStream);
-        byteArray = byteArrayOutputStream.toByteArray();
-        ConvertImage = Base64.encodeToString(byteArray, Base64.DEFAULT);
-
-        class AsyncTaskUploadClass extends AsyncTask<Void, Void, String> {
-
-            @Override
-            protected String doInBackground(Void... voids) {
-                ImageProcessClass imageProcessClass = new ImageProcessClass();
-                HashMap<String, String> HashMapParams = new HashMap<String, String>();
-                HashMapParams.put("ft_main_img", "profile");
-                HashMapParams.put("test.png", ConvertImage);
-                String FinalData = imageProcessClass.ImageHttpRequest(Events.baseUrl + "register.php", HashMapParams);
-
-                return FinalData;
-            }
-        }
-
-        AsyncTaskUploadClass AsyncTaskUploadClassOBJ = new AsyncTaskUploadClass();
-        AsyncTaskUploadClassOBJ.execute();
-    }
-
-    public class ImageProcessClass {
-        public String ImageHttpRequest(String requestURL, HashMap<String, String> PData) {
-            StringBuilder stringBuilder = new StringBuilder();
-            try {
-                url = new URL(requestURL);
-                httpURLConnection = (HttpURLConnection) url.openConnection();
-                httpURLConnection.setReadTimeout(20000);
-                httpURLConnection.setConnectTimeout(20000);
-                httpURLConnection.setRequestMethod("POST");
-                httpURLConnection.setDoInput(true);
-                httpURLConnection.setDoOutput(true);
-                outputStream = httpURLConnection.getOutputStream();
-                bufferedWriter = new BufferedWriter(
-                        new OutputStreamWriter(outputStream, "UTF-8"));
-                bufferedWriter.write(bufferedWriterDataFN(PData));
-                bufferedWriter.flush();
-                bufferedWriter.close();
-                outputStream.close();
-                RC = httpURLConnection.getResponseCode();
-                if (RC == httpURLConnection.HTTP_OK) {
-                    bufferedReader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream()));
-                    stringBuilder = new StringBuilder();
-                    String RC2;
-                    while ((RC2 = bufferedReader.readLine()) != null) {
-                        stringBuilder.append(RC2);
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-            return stringBuilder.toString();
-        }
-
-        private String bufferedWriterDataFN(HashMap<String, String> HashMapParams) throws UnsupportedEncodingException {
-            stringBuilder = new StringBuilder();
-            for (Map.Entry<String, String> KEY : HashMapParams.entrySet()) {
-                if (check)
-                    check = false;
-                else
-                    stringBuilder.append("&amp;");
-                stringBuilder.append(URLEncoder.encode(KEY.getKey(), "UTF-8"));
-                stringBuilder.append("=");
-                stringBuilder.append(URLEncoder.encode(KEY.getValue(), "UTF-8"));
-            }
-            return stringBuilder.toString();
-        }
-
-    }
 }
