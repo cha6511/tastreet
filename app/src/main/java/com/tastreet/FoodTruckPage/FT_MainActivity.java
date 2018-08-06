@@ -28,6 +28,7 @@ import com.tastreet.FoodTruckPage.Festival.FestivalListData;
 import com.tastreet.FoodTruckPage.MonthlyFestival.MonthlyFestivalListData;
 import com.tastreet.OwnerPage.FoodListData;
 import com.tastreet.R;
+import com.tastreet.SharedPref;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -96,10 +97,16 @@ public class FT_MainActivity extends AppCompatActivity {
                     case R.id.navigation_item_notification:
                         break;
 
-                    case R.id.navigation_item_settings:
+                    case R.id.navigation_item_settings: //설정 아니고 About으로 변경됐음
                         break;
 
                     case R.id.navigation_item_logout:
+                        SharedPref sharedPref = new SharedPref(FT_MainActivity.this);
+                        sharedPref.setAutoLogin(false);
+                        sharedPref.setSaveId(false);
+                        sharedPref.setLoginId("");
+                        sharedPref.setLoginPw("");
+                        finish();
                         break;
                 }
                 return true;

@@ -92,9 +92,9 @@ public class FT_LoginActivity extends BaseActivity {
         }
 
         //위 로직에서 오토로그인 체크되어있으면 로그인버튼 강제 클릭
-//        if (autoLogin.isChecked()) {
-//            loginBtn.performClick();
-//        }
+        if (autoLogin.isChecked()) {
+            loginBtn.performClick();
+        }
     }
 
     @OnClick({R.id.login_btn, R.id.register, R.id.find_id})
@@ -118,6 +118,7 @@ public class FT_LoginActivity extends BaseActivity {
                                     Toast.makeText(FT_LoginActivity.this, "로그인 실패\n아이디와 비밀번호를 확인해주세요.", Toast.LENGTH_SHORT).show();
                                 } else if (Common.SUCCESS.equals(result)) { //결과값이 SUCCESS 인 경우
                                     //페이지 이동
+
                                     Intent intent = new Intent(FT_LoginActivity.this, FT_MainActivity.class);
                                     startActivity(intent);
                                     finish();
@@ -193,20 +194,27 @@ public class FT_LoginActivity extends BaseActivity {
                     asyncDone.getResult(result);
                 } else if (Common.SUCCESS.equals(result)) {
                     //정보 다 받아와서 저장
+                    SharedPref sharedPref = new SharedPref(context);
+                    if(saveId.isChecked()){
+                        sharedPref.setLoginId(inputId.getText().toString());
+                        sharedPref.setLoginPw("");
+                        sharedPref.setAutoLogin(false);
+                        sharedPref.setSaveId(true);
+                    }
                     if(autoLogin.isChecked()){
-                        SharedPref sharedPref = new SharedPref(context);
                         sharedPref.setLoginId(inputId.getText().toString());
                         sharedPref.setLoginPw(inputPw.getText().toString());
+                        sharedPref.setSaveId(true);
                         sharedPref.setAutoLogin(true);
                     }
 
                     loginData = new FoodListData();
-                    loginData.setFt_main_img(jsonObject.getString("ft_main_img"));
+                    loginData.setFt_main_img(jsonObject.getString("ft_main_img").replace("/var/www/html", "http://52.78.25.74"));
                     loginData.setFt_name(jsonObject.getString("ft_name"));
                     loginData.setOrigin(jsonObject.getString("origin"));
                     loginData.setFt_num(jsonObject.getString("ft_num"));
                     loginData.setFt_intro(jsonObject.getString("ft_intro"));
-                    loginData.setFt_menu_img(jsonObject.getString("ft_menu_img"));
+                    loginData.setFt_menu_img(jsonObject.getString("ft_menu_img").replace("/var/www/html", "http://52.78.25.74"));
                     loginData.setFt_sns_f(jsonObject.getString("ft_sns_f"));
                     loginData.setFt_sns_i(jsonObject.getString("ft_sns_i"));
                     loginData.setCategory(jsonObject.getString("category"));
