@@ -2,8 +2,13 @@ package com.tastreet.FoodTruckPage;
 
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
 import android.support.v4.app.FragmentTransaction;
@@ -12,12 +17,15 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
@@ -32,6 +40,8 @@ import com.tastreet.SharedPref;
 
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
+
+import java.io.File;
 
 import okhttp3.OkHttpClient;
 
@@ -114,6 +124,49 @@ public class FT_MainActivity extends AppCompatActivity {
         });
 
         setMainFragment();
+    }
+
+
+    public String getPath(Context context, Uri uri) {
+        String filePath = "";
+        String fileId = DocumentsContract.getDocumentId(uri);
+        // Split at colon, use second item in the array
+        String id = fileId.split(":")[1];
+        String[] column = {MediaStore.Images.Media.DATA};
+        String selector = MediaStore.Images.Media._ID + "=?";
+        Cursor cursor = context.getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                column, selector, new String[]{id}, null);
+        int columnIndex = cursor.getColumnIndex(column[0]);
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+        return filePath;
+    }
+
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        Uri selectedMainImgUri = data.getData();
+        String[] filePathColumn = {MediaStore.Images.Media.DATA};
+        Cursor cursor = getContentResolver().query(selectedMainImgUri, filePathColumn, null, null, null);
+        int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+
+        if (requestCode == 3 && resultCode == RESULT_OK) {
+            if (cursor.moveToFirst()) {
+                Events.ImageFileSelected imageFileSelected = new Events.ImageFileSelected(getPath(this, selectedMainImgUri), requestCode);
+                GlobalBus.getBus().post(imageFileSelected);
+                cursor.close();
+            }
+        } else if (requestCode == 4 && resultCode == RESULT_OK) {
+            if (cursor.moveToFirst()) {
+                Events.ImageFileSelected imageFileSelected = new Events.ImageFileSelected(getPath(this, selectedMainImgUri), requestCode);
+                GlobalBus.getBus().post(imageFileSelected);
+                cursor.close();
+            }
+        } else {
+            Toast.makeText(FT_MainActivity.this, "파일 로드 실패", Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void setMyFoodtruckFragment(){

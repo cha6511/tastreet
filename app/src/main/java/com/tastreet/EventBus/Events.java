@@ -64,4 +64,21 @@ public class Events {
             return data;
         }
     }
+
+    public static class ImageFileSelected{
+        private String img_path;
+        private int requestCode;
+        public ImageFileSelected(String img_path, int requestCode){
+            this.img_path = img_path;
+            this.requestCode = requestCode;
+        }
+
+        public String getImg_path() {
+            return img_path;
+        }
+
+        public int getRequestCode() {
+            return requestCode;
+        }
+    }
 }

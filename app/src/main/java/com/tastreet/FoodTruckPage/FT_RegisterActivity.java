@@ -392,7 +392,6 @@ public class FT_RegisterActivity extends AppCompatActivity {
                 e.printStackTrace();
                 return null;
             }
-
         }
 
         @Override
@@ -423,41 +422,6 @@ public class FT_RegisterActivity extends AppCompatActivity {
             }
         }
 
-        public Request setPostBody(String ft_main_img, String ft_name, String origin, String ft_num, String ft_id, String ft_pw, String ft_intro, String ft_menu_img, String ft_sns_f, String ft_sns_i, String category) {
-            try {
-                final MediaType MEDIA_TYPE_PNG = MediaType.parse("image/*");
-                File mainFile = new File(ft_main_img);
-                String main_filename = ft_main_img.substring(ft_main_img.lastIndexOf("/") + 1);
-
-                File menuFile = new File(ft_menu_img);
-                String menu_filename = ft_menu_img.substring(ft_menu_img.lastIndexOf("/") + 1);
-
-                RequestBody req = new MultipartBody.Builder().setType(MultipartBody.FORM)
-                        .addFormDataPart("ft_main_img", main_filename, RequestBody.create(MEDIA_TYPE_PNG, mainFile))
-                        .addFormDataPart("ft_name", ft_name)
-                        .addFormDataPart("origin", origin)
-                        .addFormDataPart("ft_num", ft_num)
-                        .addFormDataPart("ft_id", ft_id)
-                        .addFormDataPart("ft_pw", ft_pw)
-                        .addFormDataPart("ft_intro", ft_intro)
-                        .addFormDataPart("ft_menu_img", menu_filename, RequestBody.create(MEDIA_TYPE_PNG, menuFile))
-                        .addFormDataPart("ft_sns_f", ft_sns_f)
-                        .addFormDataPart("ft_sns_i", ft_sns_i)
-                        .addFormDataPart("category", category)
-                        .build();
-
-                Request request = new Request.Builder()
-                        .url(Events.baseUrl + "register.php")
-                        .post(req)
-                        .build();
-                return request;
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-
-
-        }
     }
 
 
