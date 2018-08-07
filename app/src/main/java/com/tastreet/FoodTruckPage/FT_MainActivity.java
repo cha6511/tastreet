@@ -1,17 +1,22 @@
 package com.tastreet.FoodTruckPage;
 
+import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.DocumentsContract;
 import android.provider.MediaStore;
 import android.support.annotation.NonNull;
 import android.support.design.widget.NavigationView;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -65,6 +70,10 @@ public class FT_MainActivity extends AppCompatActivity {
 
     FrameLayout main_panel;
 
+    int reqCode = 9991;
+
+    String mainImgPath = "";
+    String menuImgPath = "";
 
 
     @Override
@@ -144,6 +153,35 @@ public class FT_MainActivity extends AppCompatActivity {
         return filePath;
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == 0) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+//                galleryIntent.setType("*/*");
+//                startActivityForResult(galleryIntent, 1);
+            } else {
+                Toast.makeText(FT_MainActivity.this, "권한을 허가하지 않아 이미지를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+    }
+
+    private boolean checkPermission() {
+        int result = ContextCompat.checkSelfPermission(FT_MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE);
+        if (result == PackageManager.PERMISSION_GRANTED) {
+            return true;
+        }
+        return false;
+    }
+
+    private void requestPermission() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(FT_MainActivity.this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            Toast.makeText(FT_MainActivity.this, "이미지를 불러오기 위해 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
+        } else {
+            ActivityCompat.requestPermissions(FT_MainActivity.this, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
+        }
+    }
+
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
@@ -151,17 +189,22 @@ public class FT_MainActivity extends AppCompatActivity {
         String[] filePathColumn = {MediaStore.Images.Media.DATA};
         Cursor cursor = getContentResolver().query(selectedMainImgUri, filePathColumn, null, null, null);
         int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
-
+        Log.d("requestCode", requestCode + "");
+        Log.d("getPath", getPath(this, selectedMainImgUri));
         if (requestCode == 3 && resultCode == RESULT_OK) {
+            reqCode = 3;
             if (cursor.moveToFirst()) {
-                Events.ImageFileSelected imageFileSelected = new Events.ImageFileSelected(getPath(this, selectedMainImgUri), requestCode);
-                GlobalBus.getBus().post(imageFileSelected);
+                mainImgPath = getPath(this, selectedMainImgUri);
+//                Events.ImageFileSelected imageFileSelected = new Events.ImageFileSelected(getPath(this, selectedMainImgUri), requestCode);
+//                GlobalBus.getBus().post(imageFileSelected);
                 cursor.close();
             }
         } else if (requestCode == 4 && resultCode == RESULT_OK) {
+            reqCode = 4;
             if (cursor.moveToFirst()) {
-                Events.ImageFileSelected imageFileSelected = new Events.ImageFileSelected(getPath(this, selectedMainImgUri), requestCode);
-                GlobalBus.getBus().post(imageFileSelected);
+                menuImgPath = getPath(this, selectedMainImgUri);
+//                Events.ImageFileSelected imageFileSelected = new Events.ImageFileSelected(getPath(this, selectedMainImgUri), requestCode);
+//                GlobalBus.getBus().post(imageFileSelected);
                 cursor.close();
             }
         } else {
@@ -225,6 +268,42 @@ public class FT_MainActivity extends AppCompatActivity {
     public void getMessage(Events.Msg msg){
         if(Events.BACK_BUTTON_PRESS.equals(msg.getMsg())){
             onBackPressed();
+        } else if("3".equals(msg.getMsg())){
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (checkPermission()) {
+                    final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                    galleryIntent.setType("*/*");
+                    startActivityForResult(galleryIntent, 3);
+                } else {
+                    requestPermission();
+                }
+            } else {
+                final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("*/*");
+                startActivityForResult(galleryIntent, 3);
+            }
+        } else if("4".equals(msg.getMsg())){
+            if (Build.VERSION.SDK_INT >= 23) {
+                if (checkPermission()) {
+                    final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                    galleryIntent.setType("*/*");
+                    startActivityForResult(galleryIntent, 4);
+                } else {
+                    requestPermission();
+                }
+            } else {
+                final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
+                galleryIntent.setType("*/*");
+                startActivityForResult(galleryIntent, 4);
+            }
+        } else if("onResume".equals(msg.getMsg())){
+            if(reqCode == 3){
+                Events.ImageFileSelected mainImg = new Events.ImageFileSelected(mainImgPath, 3);
+                GlobalBus.getBus().post(mainImg);
+            } else if(reqCode == 4){
+                Events.ImageFileSelected menuImg = new Events.ImageFileSelected(menuImgPath, 4);
+                GlobalBus.getBus().post(menuImg);
+            }
         }
     }
 
@@ -256,6 +335,10 @@ public class FT_MainActivity extends AppCompatActivity {
                 setMainFragment();
             } else if(CURRENT_PAGE.equals(MYFT_FRAGMENT)){
                 setMainFragment();
+                TextView header_id = navigationView.getHeaderView(0).findViewById(R.id._id);
+                header_id.setText(FT_LoginActivity.loginData.getFt_name());
+                ImageView profile_img = navigationView.getHeaderView(0).findViewById(R.id.profile_img);
+                Glide.with(this).load(FT_LoginActivity.loginData.getFt_main_img()).apply(new RequestOptions().circleCrop().error(R.drawable.ic_launcher_foreground)).into(profile_img);
             }
         }
     }

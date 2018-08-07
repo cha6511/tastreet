@@ -30,6 +30,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.RequestOptions;
 import com.tastreet.AsyncDone;
+import com.tastreet.Common;
 import com.tastreet.EventBus.Events;
 import com.tastreet.EventBus.GlobalBus;
 import com.tastreet.OwnerPage.FoodListData;
@@ -188,67 +189,20 @@ public class MyFT_Fragment extends Fragment {
         unbinder.unbind();
     }
 
-    private boolean checkPermission() {
-        int result = ContextCompat.checkSelfPermission(getContext(), Manifest.permission.READ_EXTERNAL_STORAGE);
-        if (result == PackageManager.PERMISSION_GRANTED) {
-            return true;
-        }
-        return false;
-    }
 
-    private void requestPermission() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(), Manifest.permission.READ_EXTERNAL_STORAGE)) {
-            Toast.makeText(getContext(), "이미지를 불러오기 위해 권한이 필요합니다.", Toast.LENGTH_SHORT).show();
-        } else {
-            ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.READ_EXTERNAL_STORAGE}, 0);
-        }
-    }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode == 0) {
-            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                galleryIntent.setType("*/*");
-                startActivityForResult(galleryIntent, 1);
-            } else {
-                Toast.makeText(getContext(), "권한을 허가하지 않아 이미지를 불러올 수 없습니다.", Toast.LENGTH_SHORT).show();
-            }
-        }
-    }
+
 
     @OnClick({R.id.profile_img, R.id.add_picture, R.id.register})
     public void onViewClicked(View view) {
         switch (view.getId()) {
             case R.id.profile_img:
-                if (Build.VERSION.SDK_INT >= 23) {
-                    if (checkPermission()) {
-                        final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                        galleryIntent.setType("*/*");
-                        startActivityForResult(galleryIntent, 3);
-                    } else {
-                        requestPermission();
-                    }
-                } else {
-                    final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                    galleryIntent.setType("*/*");
-                    startActivityForResult(galleryIntent, 3);
-                }
+                Events.Msg mainMsg = new Events.Msg("3");
+                GlobalBus.getBus().post(mainMsg);
                 break;
             case R.id.add_picture:
-                if (Build.VERSION.SDK_INT >= 23) {
-                    if (checkPermission()) {
-                        final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                        galleryIntent.setType("*/*");
-                        startActivityForResult(galleryIntent, 4);
-                    } else {
-                        requestPermission();
-                    }
-                } else {
-                    final Intent galleryIntent = new Intent(Intent.ACTION_GET_CONTENT);
-                    galleryIntent.setType("*/*");
-                    startActivityForResult(galleryIntent, 4);
-                }
+                Events.Msg menuMsg = new Events.Msg("4");
+                GlobalBus.getBus().post(menuMsg);
                 break;
             case R.id.register:
                 if (editorMode) {
@@ -256,20 +210,58 @@ public class MyFT_Fragment extends Fragment {
                     UpdateUserInfo updateUserInfo = new UpdateUserInfo(getContext(), new AsyncDone() {
                         @Override
                         public void getResult(String result) {
-
+                            if(Common.SUCCESS.equals(result)){
+                                Toast.makeText(getContext(), "정상적으로 수정되었습니다.", Toast.LENGTH_SHORT).show();
+                                FT_LoginActivity.loginData.setFt_main_img(mainImagePath);
+                                FT_LoginActivity.loginData.setFt_name(ftName.getText().toString());
+                                Events.Msg msg = new Events.Msg(Events.BACK_BUTTON_PRESS);
+                                GlobalBus.getBus().post(msg);
+                            } else{
+                                Toast.makeText(getContext(), "에러가 발생했습니다. 다시 시도해주세요.", Toast.LENGTH_SHORT).show();
+                            }
                         }
                     });
-                    updateUserInfo.execute(
-                            mainImagePath,
-                            ftName.getText().toString(),
-                            origin.getText().toString(),
-                            contact.getText().toString(),
-                            description.getText().toString(),
-                            menuImagePath,
-                            facebook.getText().toString(),
-                            instagram.getText().toString(),
-                            categoryString
-                    );
+                    if (TextUtils.isEmpty(mainImagePath)) {
+                        Toast.makeText(getContext(), "메인 사진을 선택해주세요.", Toast.LENGTH_SHORT).show();
+                    } else {
+                        if (TextUtils.isEmpty(ftName.getText().toString())) {
+                            Toast.makeText(getContext(), "푸드트럭명을 입력해주세요.", Toast.LENGTH_SHORT).show();
+                        } else {
+                            if (TextUtils.isEmpty(description.getText().toString())) {
+                                Toast.makeText(getContext(), "한 줄 소개를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                            } else {
+                                if (TextUtils.isEmpty(menuImagePath)) {
+                                    Toast.makeText(getContext(), "메뉴 사진을 선택해주세요.", Toast.LENGTH_SHORT).show();
+                                } else {
+                                    if (TextUtils.isEmpty(categoryString)) {
+                                        Toast.makeText(getContext(), "카테고리를 선택해주세요.", Toast.LENGTH_SHORT).show();
+                                    } else {
+                                        if (TextUtils.isEmpty(origin.getText().toString())) {
+                                            Toast.makeText(getContext(), "원산지를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                        } else {
+                                            if (TextUtils.isEmpty(contact.getText().toString())) {
+                                                Toast.makeText(getContext(), "연락처를 입력해주세요.", Toast.LENGTH_SHORT).show();
+                                            } else {
+                                                updateUserInfo.execute(
+                                                        mainImagePath,
+                                                        ftName.getText().toString(),
+                                                        origin.getText().toString(),
+                                                        contact.getText().toString(),
+                                                        description.getText().toString(),
+                                                        menuImagePath,
+                                                        facebook.getText().toString(),
+                                                        instagram.getText().toString(),
+                                                        categoryString,
+                                                        FT_LoginActivity.loginData.getFt_id()
+                                                );
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+
 
                 } else {
                     editorMode = !editorMode;
@@ -293,12 +285,16 @@ public class MyFT_Fragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
+        Log.d("MyFT Fragment onResume", "onResume");
         GlobalBus.getBus().getDefault().register(this);
+        Events.Msg msg = new Events.Msg("onResume");
+        GlobalBus.getBus().post(msg);
     }
 
     @Override
     public void onPause() {
         super.onPause();
+        Log.d("MyFT Fragment onPause", "onPause");
         GlobalBus.getBus().getDefault().unregister(this);
     }
 
@@ -315,8 +311,8 @@ public class MyFT_Fragment extends Fragment {
             case 4:
                 menuImagePath = imageFileSelected.getImg_path();
                 Glide.with(getContext())
-                        .load(new File(mainImagePath))
-                        .into(profileImg);
+                        .load(new File(menuImagePath))
+                        .into(menuImg);
                 break;
         }
     }
@@ -367,10 +363,11 @@ public class MyFT_Fragment extends Fragment {
                         .addFormDataPart("ft_sns_f", strings[6])
                         .addFormDataPart("ft_sns_i", strings[7])
                         .addFormDataPart("category", strings[8])
+                        .addFormDataPart("ft_id", strings[9])
                         .build();
 
                 Request.Builder builder = new Request.Builder();
-                builder.post(req).url(Events.baseUrl + "register.php");
+                builder.post(req).url(Events.baseUrl + "update_profile.php");
                 Request request = builder.build();
 
                 Response response = client.newCall(request).execute();
@@ -389,20 +386,20 @@ public class MyFT_Fragment extends Fragment {
             super.onPostExecute(s);
             Log.d("register response", s);
             if (TextUtils.isEmpty(s)) {
-                asyncDone.getResult("FAILED");
+                asyncDone.getResult(Common.FAILED);
             } else {
 
                 try {
                     JSONObject res = new JSONObject(s);
                     String result = res.getString("result");
-                    if ("SUCCESS".equals(result)) {
-                        asyncDone.getResult("SUCCESS");
+                    if (Common.SUCCESS.equals(result)) {
+                        asyncDone.getResult(Common.SUCCESS);
                     } else {
-                        asyncDone.getResult("FAILED");
+                        asyncDone.getResult(Common.FAILED);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    asyncDone.getResult("FAILED");
+                    asyncDone.getResult(Common.FAILED);
                 }
 
 

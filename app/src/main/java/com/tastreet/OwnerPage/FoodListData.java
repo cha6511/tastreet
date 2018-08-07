@@ -12,6 +12,15 @@ public class FoodListData implements Serializable{
     private String ft_sns_f;
     private String ft_sns_i;
     private String category;
+    private String ft_id;
+
+    public String getFt_id() {
+        return ft_id;
+    }
+
+    public void setFt_id(String ft_id) {
+        this.ft_id = ft_id;
+    }
 
     public FoodListData(String ft_main_img, String ft_name, String origin, String ft_num, String ft_intro, String ft_menu_img, String ft_sns_f, String ft_sns_i, String category) {
         this.ft_main_img = ft_main_img;

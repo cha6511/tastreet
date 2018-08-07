@@ -218,7 +218,7 @@ public class FT_LoginActivity extends BaseActivity {
                     loginData.setFt_sns_f(jsonObject.getString("ft_sns_f"));
                     loginData.setFt_sns_i(jsonObject.getString("ft_sns_i"));
                     loginData.setCategory(jsonObject.getString("category"));
-
+                    loginData.setFt_id(inputId.getText().toString());
 
                     asyncDone.getResult(result);
                 }
