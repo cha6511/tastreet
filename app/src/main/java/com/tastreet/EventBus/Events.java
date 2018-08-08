@@ -16,6 +16,10 @@ public class Events {
     public static final String FT_FESTIVAL_FRAGMENT = "FT_FESTIVAL_FRAGMENT";
     public static final String FT_FESTIVAL_DETAIL_FRAGMENT = "FT_FESTIVAL_DETAIL_FRAGMENT";
     public static final String MYFT_FRAGMENT = "MYFT_FRAGMENT";
+    public static final String FT_ABOUT_FRAGMENT = "FT_ABOUT_FRAGMENT";
+    public static final String FT_CLAUSE_FRAGMENT = "FT_CLAUSE_FRAGMENT";
+    public static final String FT_CHARGE_RATE_FRAGMENT = "FT_CHARGE_RATE_FRAGMENT";
+    public static final String FT_CS_FRAGMENT = "FT_CS_FRAGMENT";
 
     public static final String BACK_BUTTON_PRESS = "BACK_BUTTON_PRESS";
 

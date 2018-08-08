@@ -51,6 +51,10 @@ import java.io.File;
 import okhttp3.OkHttpClient;
 
 import static com.tastreet.EventBus.Events.CURRENT_PAGE;
+import static com.tastreet.EventBus.Events.FT_ABOUT_FRAGMENT;
+import static com.tastreet.EventBus.Events.FT_CHARGE_RATE_FRAGMENT;
+import static com.tastreet.EventBus.Events.FT_CLAUSE_FRAGMENT;
+import static com.tastreet.EventBus.Events.FT_CS_FRAGMENT;
 import static com.tastreet.EventBus.Events.FT_FESTIVAL_DETAIL_FRAGMENT;
 import static com.tastreet.EventBus.Events.FT_FESTIVAL_FRAGMENT;
 import static com.tastreet.EventBus.Events.FT_MAIN_FRAGMENT;
@@ -113,13 +117,13 @@ public class FT_MainActivity extends AppCompatActivity {
                         setFestivalFragment();
                         break;
 
-                    case R.id.navigation_item_notification:
-                        break;
-
                     case R.id.navigation_item_settings: //설정 아니고 About으로 변경됐음
+                        drawerLayout.closeDrawer(GravityCompat.START);
+                        setAboutFragment();
                         break;
 
                     case R.id.navigation_item_logout:
+                        drawerLayout.closeDrawer(GravityCompat.START);
                         SharedPref sharedPref = new SharedPref(FT_MainActivity.this);
                         sharedPref.setAutoLogin(false);
                         sharedPref.setSaveId(false);
@@ -254,6 +258,31 @@ public class FT_MainActivity extends AppCompatActivity {
         fragmentTransaction.commit();
     }
 
+    private void setAboutFragment(){
+        FT_AboutFragment ft_aboutFragment = new FT_AboutFragment();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, ft_aboutFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void setClauseFragment(){
+        FT_ClauseFragment ft_clauseFragment = new FT_ClauseFragment();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, ft_clauseFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void setChargeRageFragment(){
+        FT_ChargeRateFragment ft_chargeRateFragment = new FT_ChargeRateFragment();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, ft_chargeRateFragment);
+        fragmentTransaction.commit();
+    }
+
+    private void setCsFragment(){
+        FT_CsFragment ft_csFragment = new FT_CsFragment();
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction().replace(R.id.main_panel, ft_csFragment);
+        fragmentTransaction.commit();
+    }
+
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void getMonthlyFestivalData(Events.SendMonthlyFestivalData sendMonthlyFestivalData){
         setMonthlyFestivalDetailFragment(sendMonthlyFestivalData.getData());
@@ -304,6 +333,12 @@ public class FT_MainActivity extends AppCompatActivity {
                 Events.ImageFileSelected menuImg = new Events.ImageFileSelected(menuImgPath, 4);
                 GlobalBus.getBus().post(menuImg);
             }
+        } else if(Events.FT_CLAUSE_FRAGMENT.equals(msg.getMsg())){
+            setClauseFragment();
+        } else if(Events.FT_CHARGE_RATE_FRAGMENT.equals(msg.getMsg())){
+            setChargeRageFragment();
+        } else if(Events.FT_CS_FRAGMENT.equals(msg.getMsg())){
+            setCsFragment();
         }
     }
 
@@ -339,6 +374,12 @@ public class FT_MainActivity extends AppCompatActivity {
                 header_id.setText(FT_LoginActivity.loginData.getFt_name());
                 ImageView profile_img = navigationView.getHeaderView(0).findViewById(R.id.profile_img);
                 Glide.with(this).load(FT_LoginActivity.loginData.getFt_main_img()).apply(new RequestOptions().circleCrop().error(R.drawable.ic_launcher_foreground)).into(profile_img);
+            } else if(CURRENT_PAGE.equals(FT_ABOUT_FRAGMENT)){
+                setMainFragment();
+            } else if(CURRENT_PAGE.equals(FT_CLAUSE_FRAGMENT) ||
+                    CURRENT_PAGE.equals(FT_CHARGE_RATE_FRAGMENT) ||
+                    CURRENT_PAGE.equals(FT_CS_FRAGMENT)){
+                setAboutFragment();
             }
         }
     }

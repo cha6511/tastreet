@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="20dp"
+    tools:context=".FoodTruckPage.FT_ChargeRateFragment">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:text="수수료 기준"
+            android:textColor="#000000"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+
+        <ScrollView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/theme_outline">
+            “본 약관”
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:paddingBottom="10dp"
+                android:paddingLeft="5dp"
+                android:paddingRight="5dp"
+                android:paddingTop="10dp"
+                android:text="TASTREET 에서 계약 완료된 모든 거래의 경우, 금액의 7% 가 거래 수수료로 적용됩니다.
+
+\n\n1.“테이스트릿”과 “축제”의 구매에 관한 계약을 체결 한 이용자는 수신확인의 통지를 받은 날부터 7일 이내에는 계약의 철회를 할 수 있습니다. 단, 취소가능읷이 지나거나 취소불가 조건으로 예약하신 경우 민법 제674조의3항과 특별약관에 의거하여 별도의 취소수수료가 부가될 수 있습니다.
+
+\n\n2. 이용자는 “축제” 예약과 결제를 완료한 후 해당 상품의 이용 시작일이 지난 경우에는 취소 할 수 없습니다.
+
+\n\n3. 이용자는 제1항 및 제2항의 규정에 불구하고 “축제”의 내용이 표시된 광고 내용과 다르거나 계약내용과 다르게 이행된 때에는 해당 “축제”를 이용한 날부터 3월 이내, 그 사실을 안 날 또는 알 수 있었던 날부터 30일 이내에 계약철회 등을 할 수 있습니다."
+                android:textColor="#000000"
+                android:textSize="16sp" />
+        </ScrollView>
+    </LinearLayout>
+
+</FrameLayout>
