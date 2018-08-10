@@ -3,6 +3,8 @@ package com.tastreet.FoodTruckPage;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -35,6 +37,8 @@ import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.RequestBody;
 import okhttp3.Response;
+
+import static android.view.Window.FEATURE_NO_TITLE;
 
 public class FT_LoginActivity extends BaseActivity {
 
@@ -134,6 +138,10 @@ public class FT_LoginActivity extends BaseActivity {
                 startActivity(intent);
                 break;
             case R.id.find_id:
+                FindPasswordDialog findPasswordDialog = new FindPasswordDialog(FT_LoginActivity.this);
+                findPasswordDialog.requestWindowFeature(FEATURE_NO_TITLE);
+                findPasswordDialog.getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
+                findPasswordDialog.show();
                 break;
         }
     }
